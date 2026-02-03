@@ -1082,6 +1082,33 @@ nav {
     font-weight: 500;
 }
 
+.wallet-install {
+    margin-top: 16px;
+}
+
+.wallet-install-link {
+    display: inline-block;
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--color-primary);
+    text-decoration: none;
+    border: 1px solid var(--color-primary);
+    padding: 8px 12px;
+    border-radius: 10px;
+    background: var(--color-bg-white);
+    transition: all 0.2s;
+}
+
+.wallet-install-link:hover {
+    background: var(--color-success-bg);
+}
+
+.wallet-install-hint {
+    margin-top: 6px;
+    font-size: 11px;
+    color: var(--color-text-muted);
+}
+
 /* ============================================
    TOAST Notifications
    ============================================ */

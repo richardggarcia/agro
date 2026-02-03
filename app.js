@@ -359,7 +359,7 @@ async function conectarWallet(tipo) {
     if (tipo === 'freighter') {
         // Check if installed first
         if (!await isFreighterInstalled()) {
-            mostrarToast('⚠️ Instalá Freighter desde freighter.app');
+            mostrarToast('⚠️ Instalá la extensión de Freighter para continuar.');
             openFreighterInstall();
             return;
         }
@@ -390,12 +390,12 @@ function isMobileDevice() {
 }
 
 function openFreighterInstall() {
-    const url = 'https://freighter.app';
+    const url = 'https://chromewebstore.google.com/detail/freighter/bcacfldlkkdogcmkkibnjlakofdplcbk';
     if (isMobileDevice()) {
-        window.location.href = url;
-    } else {
-        window.open(url, '_blank');
+        mostrarToast('⚠️ Freighter requiere extensión de navegador. Abrí esta web en desktop.');
+        return;
     }
+    window.location.href = url;
 }
 
 function updateWalletUI() {
