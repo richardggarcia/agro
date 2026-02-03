@@ -293,107 +293,6 @@ function cerrarModal() {
 /* ============================================
    WALLET - Freighter Connection
    ============================================ */
-function abrirWalletModal() {
-    document.getElementById('modalWallet').classList.add('active');
-    
-    // Re-scan for Freighter when opening modal
-    const freighter = findFreighter();
-    
-    // Check Freighter status and update UI
-    const freighterStatus = document.getElementById('freighterStatus');
-    const freighterBadge = document.getElementById('freighterBadge');
-    const walletStatusText = document.getElementById('walletStatusText');
-    
-    if (walletConnected && walletAddress) {
-        const shortAddress = walletAddress.slice(0, 4) + '...' + walletAddress.slice(-4);
-        if (walletStatusText) {
-            walletStatusText.textContent = `Wallet conectada: ${shortAddress}`;
-        }
-        if (freighterStatus) {
-            freighterStatus.textContent = 'Conectada';
-        }
-        if (freighterBadge) {
-            freighterBadge.textContent = 'Conectada';
-            freighterBadge.style.display = 'block';
-            freighterBadge.style.background = 'var(--color-success-bg)';
-            freighterBadge.style.color = 'var(--color-success)';
-            freighterBadge.style.fontSize = '11px';
-            freighterBadge.style.padding = '4px 8px';
-            freighterBadge.style.borderRadius = '4px';
-        }
-        return;
-    } else if (walletStatusText) {
-        walletStatusText.textContent = 'Conectá tu wallet de Stellar para realizar transacciones.';
-    }
-
-    if (freighter) {
-        freighterStatus.textContent = 'Hacé click para conectar';
-        if (freighterBadge) {
-            freighterBadge.textContent = 'Listo';
-            freighterBadge.style.display = 'block';
-            freighterBadge.style.background = 'var(--color-success-bg)';
-            freighterBadge.style.color = 'var(--color-success)';
-            freighterBadge.style.fontSize = '11px';
-            freighterBadge.style.padding = '4px 8px';
-            freighterBadge.style.borderRadius = '4px';
-        }
-    } else {
-        freighterStatus.textContent = 'Instalá la extensión desde freighter.app';
-        if (freighterBadge) {
-            freighterBadge.textContent = 'Instalar';
-            freighterBadge.style.display = 'block';
-            freighterBadge.style.background = 'var(--color-warning-bg)';
-            freighterBadge.style.color = 'var(--color-warning)';
-            freighterBadge.style.fontSize = '11px';
-            freighterBadge.style.padding = '4px 8px';
-            freighterBadge.style.borderRadius = '4px';
-        }
-    }
-}
-
-function cerrarWalletModal() {
-    document.getElementById('modalWallet').classList.remove('active');
-}
-
-async function conectarWallet(tipo) {
-    if (tipo === 'freighter') {
-        // Check if installed first
-        const installed = await isFreighterInstalled();
-        if (!installed) {
-            cerrarWalletModal();
-            mostrarToast('⚠️ Freighter no detectado. Te llevamos a instalarla...');
-            setTimeout(() => {
-                openFreighterInstall();
-            }, 2000);
-            return;
-        }
-        cerrarWalletModal();
-        conectarFreighterDirecto();
-    } else {
-        cerrarWalletModal();
-        mostrarToast('Próximamente: Soporte para otras wallets');
-    }
-}
-
-// Check if Freighter is installed (requires extension presence)
-async function isFreighterInstalled() {
-    const found = findFreighter();
-    return !!found;
-}
-
-function isMobileDevice() {
-    return /Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
-}
-
-function openFreighterInstall() {
-    const url = 'https://chromewebstore.google.com/detail/freighter/bcacfldlkkdogcmkkibnjlakofdplcbk';
-    if (isMobileDevice()) {
-        mostrarToast('⚠️ Freighter requiere extensión de navegador. Abrí esta web en desktop.');
-        return;
-    }
-    // Open in new tab
-    window.open(url, '_blank');
-}
 
 function updateWalletUI() {
     const btn = document.getElementById('btnWallet');
@@ -427,8 +326,6 @@ async function conectarFreighterDirecto() {
     // Check if Freighter is installed
     if (!freighter) {
         mostrarToast('⚠️ Freighter no detectado. Instalá la extensión.');
-        openFreighterInstall();
-        
         return;
     }
 
@@ -442,17 +339,14 @@ async function conectarFreighterDirecto() {
                 const connectedRes = await freighter.isConnected();
                 if (connectedRes && connectedRes.error && /not available/i.test(connectedRes.error)) {
                     mostrarToast('⚠️ Freighter no disponible en este dispositivo.');
-                    openFreighterInstall();
                     return;
                 }
                 if (connectedRes && connectedRes.isConnected === false) {
                     mostrarToast('⚠️ Instalá Freighter para continuar.');
-                    openFreighterInstall();
                     return;
                 }
             } catch (e) {
                 mostrarToast('⚠️ Freighter no disponible en este dispositivo.');
-                openFreighterInstall();
                 return;
             }
         }
@@ -463,7 +357,6 @@ async function conectarFreighterDirecto() {
             const isAllowed = !!(allowedRes && allowedRes.isAllowed);
             if (allowedRes && allowedRes.error && /not available/i.test(allowedRes.error)) {
                 mostrarToast('⚠️ Freighter no disponible en este dispositivo.');
-                openFreighterInstall();
                 return;
             }
             if (!isAllowed) {
@@ -576,7 +469,7 @@ function publicarProducto() {
     // Check if wallet is connected
     if (!walletConnected) {
         mostrarToast('Conectá tu wallet para publicar productos');
-        abrirWalletModal();
+        conectarFreighterDirecto();
         return;
     }
 
@@ -662,7 +555,7 @@ function abrirOfertaModal(producto, negocio, cantidad, unidad) {
     // Check if wallet is connected
     if (!walletConnected) {
         mostrarToast('Conectá tu wallet para hacer ofertas');
-        abrirWalletModal();
+        conectarFreighterDirecto();
         return;
     }
 
@@ -733,23 +626,7 @@ function findFreighter() {
         return window.freighterApi;
     }
     
-    // Check if any global object has freighter-like methods
-    for (const key in window) {
-        try {
-            const obj = window[key];
-            if (obj && typeof obj === 'object') {
-                // Check for freighter methods
-                if (typeof obj.getPublicKey === 'function' || 
-                    typeof obj.getAddress === 'function' ||
-                    typeof obj.requestAccess === 'function' ||
-                    typeof obj.isConnected === 'function') {
-                    return obj;
-                }
-            }
-        } catch (e) {
-            // Ignore access errors
-        }
-    }
+    // NOT scanning other window objects - avoid false positives from other extensions
     
     return null;
 }
@@ -805,9 +682,6 @@ window.calcular = calcular;
 window.solicitarValidacion = solicitarValidacion;
 window.iniciarCompra = iniciarCompra;
 window.cerrarModal = cerrarModal;
-window.abrirWalletModal = abrirWalletModal;
-window.cerrarWalletModal = cerrarWalletModal;
-window.conectarWallet = conectarWallet;
 window.conectarFreighterDirecto = conectarFreighterDirecto;
 window.desconectarWallet = desconectarWallet;
 window.mostrarToast = mostrarToast;

@@ -346,43 +346,6 @@
         </div>
     </div>
 
-    <!-- Modal Wallet -->
-    <div id="modalWallet" class="modal-overlay">
-        <div class="modal-content wallet-modal-content">
-            <div class="wallet-icon">🔗</div>
-            <h3>Conectar Wallet</h3>
-            <p id="walletStatusText">Conectá tu wallet de Stellar para realizar transacciones.</p>
-
-            <div class="wallet-options">
-                <div class="wallet-option" id="freighterOption" onclick="conectarWallet('freighter')">
-                    <div class="wallet-option-icon">⭐</div>
-                    <div class="wallet-option-info">
-                        <div class="wallet-option-name">Freighter</div>
-                        <div class="wallet-option-desc" id="freighterStatus">Detectando...</div>
-                    </div>
-                    <span class="badge" id="freighterBadge" style="display:none;"></span>
-                </div>
-
-                <div class="wallet-option" onclick="conectarWallet('other')">
-                    <div class="wallet-option-icon">📱</div>
-                    <div class="wallet-option-info">
-                        <div class="wallet-option-name">Otras wallets</div>
-                        <div class="wallet-option-desc">WalletConnect y más</div>
-                    </div>
-                    <span class="coming-soon">Próximamente</span>
-                </div>
-            </div>
-            <div class="wallet-install">
-                <a class="wallet-install-link" href="https://chromewebstore.google.com/detail/freighter/bcacfldlkkdogcmkkibnjlakofdplcbk" target="_blank" rel="noopener">
-                    Instalar Freighter
-                </a>
-                <div class="wallet-install-hint">Requiere extensión de navegador (Chrome/Brave/Edge).</div>
-            </div>
-
-            <button class="btn-close show" onclick="cerrarWalletModal()">Cancelar</button>
-        </div>
-    </div>
-
     <!-- Modal Oferta -->
     <div id="modalOferta" class="modal-overlay">
         <div class="modal-content oferta-modal-content">
@@ -424,7 +387,7 @@
     <div id="toast" class="toast"></div>
 
     <!-- App Script -->
-    <script src="app.js"></script>
+    <script src="app.js?v=2"></script>
 </body>
 
 </html>
