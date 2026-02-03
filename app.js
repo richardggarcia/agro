@@ -390,13 +390,25 @@ async function conectarFreighterDirecto() {
     try {
         mostrarToast('⏳ Conectando con Freighter...');
         
+        // Request permission first to trigger Freighter popup
+        if (typeof freighter.isAllowed === 'function') {
+            const allowed = await freighter.isAllowed();
+            console.log('Freighter isAllowed:', allowed);
+            if (!allowed && typeof freighter.requestAccess === 'function') {
+                console.log('Solicitando acceso (requestAccess)...');
+                await freighter.requestAccess();
+                console.log('✅ requestAccess exitoso');
+            }
+        }
+
         // Method 1: Try getAddress (most common)
         console.log('Intentando getAddress...');
         let publicKey = null;
         
         try {
-            publicKey = await freighter.getAddress();
-            console.log('✅ getAddress exitoso:', publicKey);
+            const res = await freighter.getAddress();
+            publicKey = (res && typeof res === 'object') ? res.address : res;
+            console.log('✅ getAddress exitoso:', res);
         } catch (e1) {
             console.log('getAddress falló:', e1.message);
             
@@ -420,7 +432,7 @@ async function conectarFreighterDirecto() {
             }
         }
 
-        if (!publicKey || typeof publicKey !== 'string') {
+        if (!publicKey || typeof publicKey !== 'string' || publicKey.trim() === '') {
             mostrarToast('❌ No se pudo obtener la dirección');
             return;
         }
