@@ -355,10 +355,10 @@ function cerrarWalletModal() {
     document.getElementById('modalWallet').classList.remove('active');
 }
 
-function conectarWallet(tipo) {
+async function conectarWallet(tipo) {
     if (tipo === 'freighter') {
         // Check if installed first
-        if (!isFreighterInstalled()) {
+        if (!await isFreighterInstalled()) {
             mostrarToast('⚠️ Instalá Freighter desde freighter.app');
             openFreighterInstall();
             return;
@@ -371,10 +371,18 @@ function conectarWallet(tipo) {
     }
 }
 
-// Check if Freighter is installed
-function isFreighterInstalled() {
+// Check if Freighter is installed (requires extension presence)
+async function isFreighterInstalled() {
     const found = findFreighter();
-    return found !== null;
+    if (!found) return false;
+    if (typeof found.isConnected !== 'function') return true;
+    try {
+        const res = await found.isConnected();
+        if (res && res.error && /not available/i.test(res.error)) return false;
+        return !!(res && res.isConnected);
+    } catch (e) {
+        return false;
+    }
 }
 
 function isMobileDevice() {
@@ -437,6 +445,11 @@ async function conectarFreighterDirecto() {
                 const connectedRes = await freighter.isConnected();
                 if (connectedRes && connectedRes.error && /not available/i.test(connectedRes.error)) {
                     mostrarToast('⚠️ Freighter no disponible en este dispositivo.');
+                    openFreighterInstall();
+                    return;
+                }
+                if (connectedRes && connectedRes.isConnected === false) {
+                    mostrarToast('⚠️ Instalá Freighter para continuar.');
                     openFreighterInstall();
                     return;
                 }
