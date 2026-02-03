@@ -291,10 +291,38 @@ function cerrarModal() {
 }
 
 /* ============================================
-   WALLET - Mock Connection
+   WALLET - Freighter Connection
    ============================================ */
 function abrirWalletModal() {
     document.getElementById('modalWallet').classList.add('active');
+    
+    // Check Freighter status and update UI
+    const freighterStatus = document.getElementById('freighterStatus');
+    const freighterBadge = document.getElementById('freighterBadge');
+    
+    if (isFreighterInstalled()) {
+        freighterStatus.textContent = 'Hacé click para conectar';
+        if (freighterBadge) {
+            freighterBadge.textContent = 'Listo';
+            freighterBadge.style.display = 'block';
+            freighterBadge.style.background = 'var(--color-success-bg)';
+            freighterBadge.style.color = 'var(--color-success)';
+            freighterBadge.style.fontSize = '11px';
+            freighterBadge.style.padding = '4px 8px';
+            freighterBadge.style.borderRadius = '4px';
+        }
+    } else {
+        freighterStatus.textContent = 'Instalá la extensión desde freighter.app';
+        if (freighterBadge) {
+            freighterBadge.textContent = 'Instalar';
+            freighterBadge.style.display = 'block';
+            freighterBadge.style.background = 'var(--color-warning-bg)';
+            freighterBadge.style.color = 'var(--color-warning)';
+            freighterBadge.style.fontSize = '11px';
+            freighterBadge.style.padding = '4px 8px';
+            freighterBadge.style.borderRadius = '4px';
+        }
+    }
 }
 
 function cerrarWalletModal() {
@@ -302,63 +330,77 @@ function cerrarWalletModal() {
 }
 
 function conectarWallet(tipo) {
-    cerrarWalletModal();
-
     if (tipo === 'freighter') {
+        // Check if installed first
+        if (!isFreighterInstalled()) {
+            mostrarToast('⚠️ Instalá Freighter desde freighter.app');
+            window.open('https://freighter.app', '_blank');
+            return;
+        }
+        cerrarWalletModal();
         conectarFreighterDirecto();
     } else {
+        cerrarWalletModal();
         mostrarToast('Próximamente: Soporte para otras wallets');
     }
 }
 
-// Direct Freighter connection (no modal)
+// Check if Freighter is installed
+function isFreighterInstalled() {
+    return window.freighter !== undefined && window.freighter !== null;
+}
+
+// Direct Freighter connection
 async function conectarFreighterDirecto() {
     console.log('🔗 Intentando conectar Freighter...');
+    console.log('window.freighter:', window.freighter);
+    console.log('typeof window.freighter:', typeof window.freighter);
 
-    // Check various ways Freighter might be available
-    const freighter = window.freighterApi || window.freighter;
-
-    console.log('freighterApi:', typeof window.freighterApi);
-    console.log('freighter:', typeof window.freighter);
-
-    if (!freighter) {
-        console.log('❌ Freighter API no encontrada');
-        mostrarToast('⚠️ Instalá Freighter desde freighter.app');
-        window.open('https://freighter.app', '_blank');
+    // Check if Freighter is installed
+    if (!isFreighterInstalled()) {
+        console.log('❌ Freighter no instalado - window.freighter:', window.freighter);
+        mostrarToast('⚠️ Instalá Freighter y recargá la página');
+        setTimeout(() => {
+            window.open('https://freighter.app', '_blank');
+        }, 2000);
         return;
     }
 
+    // Freighter is installed, proceed
+    const freighter = window.freighter;
+    
     try {
-        // Try to check if connected
-        console.log('Checking isConnected...');
-        const connectionResult = await freighter.isConnected();
-        console.log('isConnected result:', connectionResult);
-
-        // Handle both object and boolean responses
-        const isConnected = typeof connectionResult === 'object'
-            ? connectionResult.isConnected
-            : connectionResult;
-
-        if (!isConnected) {
-            console.log('❌ Freighter no está conectado/instalado');
-            mostrarToast('⚠️ Abrí Freighter y desbloqueá tu wallet');
-            return;
+        mostrarToast('⏳ Conectando con Freighter...');
+        
+        // Method 1: Try getAddress (most common)
+        console.log('Intentando getAddress...');
+        let publicKey = null;
+        
+        try {
+            publicKey = await freighter.getAddress();
+            console.log('✅ getAddress exitoso:', publicKey);
+        } catch (e1) {
+            console.log('getAddress falló:', e1.message);
+            
+            // Method 2: Try getPublicKey
+            try {
+                console.log('Intentando getPublicKey...');
+                publicKey = await freighter.getPublicKey();
+                console.log('✅ getPublicKey exitoso:', publicKey);
+            } catch (e2) {
+                console.log('getPublicKey falló:', e2.message);
+                
+                // Method 3: Try requestAccess
+                try {
+                    console.log('Intentando requestAccess...');
+                    publicKey = await freighter.requestAccess();
+                    console.log('✅ requestAccess exitoso:', publicKey);
+                } catch (e3) {
+                    console.log('requestAccess también falló:', e3.message);
+                    throw new Error('No se pudo obtener acceso. Rechazaste el permiso?');
+                }
+            }
         }
-
-        // Request access
-        console.log('Requesting access...');
-        const accessResult = await freighter.requestAccess();
-        console.log('requestAccess result:', accessResult);
-
-        if (accessResult.error) {
-            console.log('❌ Error:', accessResult.error);
-            mostrarToast('❌ ' + accessResult.error);
-            return;
-        }
-
-        // Get public key from result
-        const publicKey = accessResult.address || accessResult.publicKey || accessResult;
-        console.log('Public key:', publicKey);
 
         if (!publicKey || typeof publicKey !== 'string') {
             mostrarToast('❌ No se pudo obtener la dirección');
@@ -372,15 +414,22 @@ async function conectarFreighterDirecto() {
         const shortAddress = publicKey.slice(0, 4) + '...' + publicKey.slice(-4);
 
         const btn = document.getElementById('btnWallet');
-        btn.innerHTML = `<span>🔗</span> ${shortAddress}`;
+        btn.innerHTML = `<span>⭐</span> ${shortAddress}`;
         btn.classList.add('connected');
 
         mostrarToast('✅ Wallet conectada: ' + shortAddress);
         console.log('✅ Freighter conectado:', publicKey);
 
     } catch (error) {
-        console.error('Error connecting Freighter:', error);
-        mostrarToast('❌ Error: ' + (error.message || 'Intenta de nuevo'));
+        console.error('❌ Error conectando Freighter:', error);
+        
+        if (error.message && error.message.includes('rejected')) {
+            mostrarToast('⚠️ Rechazaste la conexión. Intentá de nuevo.');
+        } else if (error.message && error.message.includes('not installed')) {
+            mostrarToast('⚠️ Freighter no detectado. Instalalo y recargá.');
+        } else {
+            mostrarToast('❌ Error: ' + (error.message || 'Intentá de nuevo'));
+        }
     }
 }
 
@@ -591,12 +640,62 @@ function mostrarToast(msg) {
 }
 
 /* ============================================
+   FREIGHTER DETECTION
+   ============================================ */
+let freighterDetected = false;
+
+// Check if Freighter is available
+function checkFreighter() {
+    return window.freighter !== undefined && window.freighter !== null;
+}
+
+// Listen for Freighter injection
+window.addEventListener('freighter:loaded', () => {
+    console.log('⭐ Evento freighter:loaded recibido');
+    freighterDetected = true;
+});
+
+// Poll for Freighter (some browsers inject it late)
+let freighterPollCount = 0;
+const freighterPoll = setInterval(() => {
+    freighterPollCount++;
+    
+    if (checkFreighter()) {
+        console.log('⭐ Freighter detectado en poll #' + freighterPollCount);
+        freighterDetected = true;
+        clearInterval(freighterPoll);
+    } else if (freighterPollCount > 20) { // Stop after 10 seconds
+        console.log('⏳ Freighter no encontrado después de 10s');
+        clearInterval(freighterPoll);
+    }
+}, 500);
+
+// Initial check
+setTimeout(() => {
+    if (checkFreighter()) {
+        console.log('⭐ Freighter ya estaba disponible');
+        freighterDetected = true;
+    } else {
+        console.log('⏳ Freighter no detectado inicialmente, esperando...');
+    }
+}, 100);
+
+/* ============================================
    INITIALIZATION
    ============================================ */
 document.addEventListener('DOMContentLoaded', () => {
     initTicker();
     startPriceUpdates();
     sugerirValor();
+    
+    // Check Freighter status after a delay (extension loads async)
+    setTimeout(() => {
+        const installed = isFreighterInstalled();
+        console.log('Freighter status:', installed ? '✅ Instalado' : '❌ No instalado');
+        if (installed) {
+            console.log('Freighter API:', Object.keys(window.freighter));
+        }
+    }, 2000);
 });
 
 // Make functions globally available

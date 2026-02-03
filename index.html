@@ -351,15 +351,16 @@
         <div class="modal-content wallet-modal-content">
             <div class="wallet-icon">🔗</div>
             <h3>Conectar Wallet</h3>
-            <p>Conectá tu wallet de Stellar para realizar transacciones en la plataforma.</p>
+            <p id="walletStatusText">Conectá tu wallet de Stellar para realizar transacciones.</p>
 
             <div class="wallet-options">
-                <div class="wallet-option" onclick="conectarWallet('freighter')">
+                <div class="wallet-option" id="freighterOption" onclick="conectarWallet('freighter')">
                     <div class="wallet-option-icon">⭐</div>
                     <div class="wallet-option-info">
                         <div class="wallet-option-name">Freighter</div>
-                        <div class="wallet-option-desc">Wallet oficial de Stellar</div>
+                        <div class="wallet-option-desc" id="freighterStatus">Detectando...</div>
                     </div>
+                    <span class="badge" id="freighterBadge" style="display:none;"></span>
                 </div>
 
                 <div class="wallet-option" onclick="conectarWallet('other')">
