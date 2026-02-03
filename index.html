@@ -8,6 +8,8 @@
     <meta name="description"
         content="Plataforma que conecta productores agropecuarios locales con consumidores, con microfinanciamiento usando collateral real.">
     <link rel="stylesheet" href="styles.css">
+    <!-- Freighter Wallet API -->
+    <script src="https://cdn.jsdelivr.net/npm/@stellar/freighter-api@3.0.0/dist/index.min.js"></script>
 </head>
 
 <body>
@@ -119,33 +121,38 @@
                 <div class="publish-form">
                     <div class="publish-form-title">🌾 ¿Sos productor? Publicá tu producto</div>
                     <div class="publish-form-grid">
-                        <div class="form-field">
+                        <!-- Fila 1 -->
+                        <div class="form-field" style="grid-column: span 2;">
                             <label class="form-label">Producto</label>
                             <input type="text" class="form-input" id="productoNombre" placeholder="Ej: Tomates cherry">
                         </div>
-                        <div class="form-field">
+                        <div class="form-field" style="grid-column: span 2;">
                             <label class="form-label">Tu nombre o campo</label>
                             <input type="text" class="form-input" id="productoProductor"
                                 placeholder="Ej: Familia Rodríguez">
                         </div>
+                        <!-- Fila 2 -->
                         <div class="form-field">
                             <label class="form-label">Precio</label>
                             <div class="publish-price-row">
                                 <span class="price-prefix">$</span>
                                 <input type="number" class="form-input" id="productoPrecio" placeholder="500">
-                                <select class="form-select" id="productoUnidad">
-                                    <option value="kg">por kg</option>
-                                    <option value="litro">por litro</option>
-                                    <option value="maple">por maple</option>
-                                    <option value="unidad">por unidad</option>
-                                </select>
                             </div>
+                        </div>
+                        <div class="form-field">
+                            <label class="form-label">Unidad</label>
+                            <select class="form-select" id="productoUnidad">
+                                <option value="kg">por kg</option>
+                                <option value="litro">por litro</option>
+                                <option value="maple">por maple</option>
+                                <option value="unidad">por unidad</option>
+                            </select>
                         </div>
                         <div class="form-field">
                             <label class="form-label">Stock</label>
                             <input type="number" class="form-input" id="productoStock" placeholder="50">
                         </div>
-                        <div class="form-field form-field-btn">
+                        <div class="form-field form-field-btn" style="grid-column: span 2;">
                             <button class="btn btn-primary" onclick="publicarProducto()">Publicar</button>
                         </div>
                     </div>
@@ -245,26 +252,37 @@
                 <div class="demand-form">
                     <div class="demand-form-title">📢 Publicar tu demanda</div>
                     <div class="demand-form-grid">
-                        <input type="text" class="form-input" id="demandaNegocio"
-                            placeholder="Tu negocio (ej: Panadería San José)">
-                        <select class="form-select" id="demandaProducto">
-                            <option value="cafe">☕ Café</option>
-                            <option value="soja">🌱 Soja</option>
-                            <option value="maiz">🌽 Maíz</option>
-                            <option value="huevos">🥚 Huevos</option>
-                            <option value="leche">🥛 Leche</option>
-                            <option value="dulce">🥄 Dulce de Leche</option>
-                        </select>
-                        <div class="demand-quantity-row">
-                            <input type="number" class="form-input" id="demandaCantidad" placeholder="Cantidad">
-                            <select class="form-select" id="demandaUnidad">
-                                <option value="kg">kg</option>
-                                <option value="litros">litros</option>
-                                <option value="maples">maples</option>
-                                <option value="unidades">unidades</option>
+                        <div class="form-field">
+                            <label class="form-label">Tu negocio</label>
+                            <input type="text" class="form-input" id="demandaNegocio"
+                                placeholder="Ej: Panadería San José">
+                        </div>
+                        <div class="form-field">
+                            <label class="form-label">¿Qué necesitás?</label>
+                            <select class="form-select" id="demandaProducto">
+                                <option value="cafe">☕ Café</option>
+                                <option value="soja">🌱 Soja</option>
+                                <option value="maiz">🌽 Maíz</option>
+                                <option value="huevos">🥚 Huevos</option>
+                                <option value="leche">🥛 Leche</option>
+                                <option value="dulce">🥄 Dulce de Leche</option>
                             </select>
                         </div>
-                        <button class="btn btn-primary" onclick="publicarDemanda()">Publicar</button>
+                        <div class="form-field">
+                            <label class="form-label">Cantidad</label>
+                            <div class="demand-quantity-row">
+                                <input type="number" class="form-input" id="demandaCantidad" placeholder="Ej: 50">
+                                <select class="form-select" id="demandaUnidad">
+                                    <option value="kg">kg</option>
+                                    <option value="litros">litros</option>
+                                    <option value="maples">maples</option>
+                                    <option value="unidades">unidades</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="form-field form-field-btn">
+                            <button class="btn btn-primary" onclick="publicarDemanda()">Publicar</button>
+                        </div>
                     </div>
                 </div>
 

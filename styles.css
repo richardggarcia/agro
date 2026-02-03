@@ -584,7 +584,7 @@ nav {
 
 .publish-form-grid {
     display: grid;
-    grid-template-columns: 1fr 1fr 1fr 1fr auto;
+    grid-template-columns: 1fr 1fr 1fr 1fr;
     gap: 16px;
     align-items: end;
 }
@@ -593,12 +593,16 @@ nav {
     display: flex;
     flex-direction: column;
     gap: 6px;
+    min-width: 0; /* Prevents overflow */
 }
 
 .form-field .form-label {
     font-size: 13px;
     font-weight: 500;
     color: var(--color-text);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
 }
 
 .form-field-btn {
@@ -611,6 +615,7 @@ nav {
     padding: 12px 14px;
     font-size: 15px;
     min-height: 44px;
+    width: 100%;
 }
 
 .publish-form .form-input::placeholder {
@@ -620,23 +625,24 @@ nav {
 .publish-price-row {
     display: flex;
     align-items: center;
-    gap: 6px;
+    gap: 8px;
 }
 
 .publish-price-row .price-prefix {
     font-weight: 700;
     color: var(--color-text);
     font-size: 16px;
+    flex-shrink: 0;
 }
 
 .publish-price-row .form-input {
-    width: 100px;
     flex: 1;
+    min-width: 60px;
 }
 
 .publish-price-row .form-select {
-    width: auto;
-    min-width: 100px;
+    flex: 1;
+    min-width: 90px;
 }
 
 .publish-form .btn {
@@ -1153,13 +1159,29 @@ nav {
     }
 
     /* Publish Form - Stack in single column */
+    .publish-form-title {
+        font-size: 16px;
+        font-weight: 600;
+        margin-bottom: 20px;
+        text-align: center;
+        color: var(--color-success);
+    }
+
     .publish-form-grid {
         grid-template-columns: 1fr;
-        gap: 16px;
+        gap: 20px;
     }
 
     .publish-form .form-field {
         width: 100%;
+    }
+
+    .publish-form .form-label {
+        display: block;
+        font-size: 14px;
+        font-weight: 500;
+        color: #374151;
+        margin-bottom: 8px;
     }
 
     .publish-form .form-input,
@@ -1167,32 +1189,65 @@ nav {
         width: 100%;
         min-height: 48px;
         font-size: 16px; /* Prevents zoom on iOS */
+        padding: 12px 14px;
     }
 
     .publish-price-row {
+        display: flex;
+        align-items: center;
+        gap: 8px;
         width: 100%;
+    }
+
+    .publish-price-row .price-prefix {
+        font-size: 18px;
+        font-weight: 600;
+        color: var(--color-text);
+        padding: 0 4px;
     }
 
     .publish-price-row .form-input {
-        width: 100%;
         flex: 1;
+        min-width: 100px;
     }
 
     .publish-price-row .form-select {
-        width: auto;
+        flex: 1;
         min-width: 120px;
+        max-width: 140px;
     }
 
     .publish-form .btn {
         width: 100%;
         padding: 14px 24px;
         min-height: 48px;
+        font-size: 16px;
+        margin-top: 8px;
     }
 
     /* Demand Form - Stack in single column */
+    .demand-form-title {
+        font-size: 16px;
+        font-weight: 600;
+        margin-bottom: 20px;
+        color: var(--color-text);
+    }
+
     .demand-form-grid {
         grid-template-columns: 1fr;
-        gap: 12px;
+        gap: 16px;
+    }
+
+    .demand-form .form-field {
+        width: 100%;
+    }
+
+    .demand-form .form-label {
+        display: block;
+        font-size: 14px;
+        font-weight: 500;
+        color: #374151;
+        margin-bottom: 8px;
     }
 
     .demand-form .form-input,
@@ -1200,9 +1255,13 @@ nav {
         width: 100%;
         min-height: 48px;
         font-size: 16px; /* Prevents zoom on iOS */
+        padding: 12px 14px;
     }
 
     .demand-quantity-row {
+        display: flex;
+        align-items: center;
+        gap: 10px;
         width: 100%;
     }
 
@@ -1212,14 +1271,17 @@ nav {
     }
 
     .demand-quantity-row .form-select {
-        width: auto;
-        min-width: 100px;
+        flex: 1;
+        min-width: 110px;
+        max-width: 140px;
     }
 
     .demand-form .btn {
         width: 100%;
         padding: 14px 24px;
         min-height: 48px;
+        font-size: 16px;
+        margin-top: 8px;
     }
 
     /* Adjust form field labels */

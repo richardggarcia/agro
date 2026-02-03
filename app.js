@@ -302,23 +302,67 @@ function cerrarWalletModal() {
 }
 
 function conectarWallet(tipo) {
-    // Mock wallet connection
     cerrarWalletModal();
 
     if (tipo === 'freighter') {
-        // Simulate connection
-        setTimeout(() => {
-            walletConnected = true;
-            walletAddress = 'G' + 'X'.repeat(4) + '...' + 'ABC';
-
-            const btn = document.getElementById('btnWallet');
-            btn.innerHTML = `<span>🔗</span> ${walletAddress}`;
-            btn.classList.add('connected');
-
-            mostrarToast('Wallet conectada correctamente');
-        }, 500);
+        conectarFreighterReal();
     } else {
         mostrarToast('Próximamente: Soporte para otras wallets');
+    }
+}
+
+// Real Freighter Wallet Connection
+async function conectarFreighterReal() {
+    try {
+        // Check if Freighter API is available
+        if (typeof window.freighterApi === 'undefined') {
+            mostrarToast('⚠️ Instalá Freighter desde freighter.app');
+            window.open('https://freighter.app', '_blank');
+            return;
+        }
+
+        // Check if Freighter is installed
+        const isConnected = await window.freighterApi.isConnected();
+        if (!isConnected) {
+            mostrarToast('⚠️ Instalá la extensión Freighter');
+            window.open('https://freighter.app', '_blank');
+            return;
+        }
+
+        // Request access to the wallet
+        const accessStatus = await window.freighterApi.requestAccess();
+
+        if (accessStatus !== 'ACCEPTED' && accessStatus !== true) {
+            mostrarToast('❌ Conexión rechazada por el usuario');
+            return;
+        }
+
+        // Get the public key
+        const { publicKey } = await window.freighterApi.getAddress();
+
+        if (!publicKey) {
+            mostrarToast('❌ No se pudo obtener la dirección');
+            return;
+        }
+
+        // Success! Update UI
+        walletConnected = true;
+        walletAddress = publicKey;
+
+        // Format address for display (first 4 + last 4 characters)
+        const shortAddress = publicKey.slice(0, 4) + '...' + publicKey.slice(-4);
+
+        const btn = document.getElementById('btnWallet');
+        btn.innerHTML = `<span>🔗</span> ${shortAddress}`;
+        btn.classList.add('connected');
+
+        mostrarToast('✅ Wallet conectada: ' + shortAddress);
+
+        console.log('Freighter connected:', publicKey);
+
+    } catch (error) {
+        console.error('Error connecting Freighter:', error);
+        mostrarToast('❌ Error al conectar: ' + (error.message || 'Intenta de nuevo'));
     }
 }
 
