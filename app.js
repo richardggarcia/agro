@@ -321,24 +321,23 @@ async function conectarFreighterReal() {
             return;
         }
 
-        // Check if Freighter is installed
-        const isConnected = await window.freighterApi.isConnected();
-        if (!isConnected) {
+        // Check if Freighter is installed - API returns { isConnected: boolean }
+        const connectionResult = await window.freighterApi.isConnected();
+        if (!connectionResult || !connectionResult.isConnected) {
             mostrarToast('⚠️ Instalá la extensión Freighter');
             window.open('https://freighter.app', '_blank');
             return;
         }
 
-        // Request access to the wallet
-        const accessStatus = await window.freighterApi.requestAccess();
+        // Request access - returns { address: string } or { error: string }
+        const accessResult = await window.freighterApi.requestAccess();
 
-        if (accessStatus !== 'ACCEPTED' && accessStatus !== true) {
-            mostrarToast('❌ Conexión rechazada por el usuario');
+        if (accessResult.error) {
+            mostrarToast('❌ ' + accessResult.error);
             return;
         }
 
-        // Get the public key
-        const { publicKey } = await window.freighterApi.getAddress();
+        const publicKey = accessResult.address;
 
         if (!publicKey) {
             mostrarToast('❌ No se pudo obtener la dirección');
