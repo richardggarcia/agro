@@ -305,50 +305,70 @@ function conectarWallet(tipo) {
     cerrarWalletModal();
 
     if (tipo === 'freighter') {
-        conectarFreighterReal();
+        conectarFreighterDirecto();
     } else {
         mostrarToast('Próximamente: Soporte para otras wallets');
     }
 }
 
-// Real Freighter Wallet Connection
-async function conectarFreighterReal() {
+// Direct Freighter connection (no modal)
+async function conectarFreighterDirecto() {
+    console.log('🔗 Intentando conectar Freighter...');
+
+    // Check various ways Freighter might be available
+    const freighter = window.freighterApi || window.freighter;
+
+    console.log('freighterApi:', typeof window.freighterApi);
+    console.log('freighter:', typeof window.freighter);
+
+    if (!freighter) {
+        console.log('❌ Freighter API no encontrada');
+        mostrarToast('⚠️ Instalá Freighter desde freighter.app');
+        window.open('https://freighter.app', '_blank');
+        return;
+    }
+
     try {
-        // Check if Freighter API is available
-        if (typeof window.freighterApi === 'undefined') {
-            mostrarToast('⚠️ Instalá Freighter desde freighter.app');
-            window.open('https://freighter.app', '_blank');
+        // Try to check if connected
+        console.log('Checking isConnected...');
+        const connectionResult = await freighter.isConnected();
+        console.log('isConnected result:', connectionResult);
+
+        // Handle both object and boolean responses
+        const isConnected = typeof connectionResult === 'object'
+            ? connectionResult.isConnected
+            : connectionResult;
+
+        if (!isConnected) {
+            console.log('❌ Freighter no está conectado/instalado');
+            mostrarToast('⚠️ Abrí Freighter y desbloqueá tu wallet');
             return;
         }
 
-        // Check if Freighter is installed - API returns { isConnected: boolean }
-        const connectionResult = await window.freighterApi.isConnected();
-        if (!connectionResult || !connectionResult.isConnected) {
-            mostrarToast('⚠️ Instalá la extensión Freighter');
-            window.open('https://freighter.app', '_blank');
-            return;
-        }
-
-        // Request access - returns { address: string } or { error: string }
-        const accessResult = await window.freighterApi.requestAccess();
+        // Request access
+        console.log('Requesting access...');
+        const accessResult = await freighter.requestAccess();
+        console.log('requestAccess result:', accessResult);
 
         if (accessResult.error) {
+            console.log('❌ Error:', accessResult.error);
             mostrarToast('❌ ' + accessResult.error);
             return;
         }
 
-        const publicKey = accessResult.address;
+        // Get public key from result
+        const publicKey = accessResult.address || accessResult.publicKey || accessResult;
+        console.log('Public key:', publicKey);
 
-        if (!publicKey) {
+        if (!publicKey || typeof publicKey !== 'string') {
             mostrarToast('❌ No se pudo obtener la dirección');
             return;
         }
 
-        // Success! Update UI
+        // Success!
         walletConnected = true;
         walletAddress = publicKey;
 
-        // Format address for display (first 4 + last 4 characters)
         const shortAddress = publicKey.slice(0, 4) + '...' + publicKey.slice(-4);
 
         const btn = document.getElementById('btnWallet');
@@ -356,12 +376,11 @@ async function conectarFreighterReal() {
         btn.classList.add('connected');
 
         mostrarToast('✅ Wallet conectada: ' + shortAddress);
-
-        console.log('Freighter connected:', publicKey);
+        console.log('✅ Freighter conectado:', publicKey);
 
     } catch (error) {
         console.error('Error connecting Freighter:', error);
-        mostrarToast('❌ Error al conectar: ' + (error.message || 'Intenta de nuevo'));
+        mostrarToast('❌ Error: ' + (error.message || 'Intenta de nuevo'));
     }
 }
 
@@ -589,6 +608,7 @@ window.cerrarModal = cerrarModal;
 window.abrirWalletModal = abrirWalletModal;
 window.cerrarWalletModal = cerrarWalletModal;
 window.conectarWallet = conectarWallet;
+window.conectarFreighterDirecto = conectarFreighterDirecto;
 window.mostrarToast = mostrarToast;
 window.publicarDemanda = publicarDemanda;
 window.publicarProducto = publicarProducto;
