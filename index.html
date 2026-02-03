@@ -1,0 +1,405 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Agro - Financiamiento y Marketplace</title>
+    <meta name="description"
+        content="Plataforma que conecta productores agropecuarios locales con consumidores, con microfinanciamiento usando collateral real.">
+    <link rel="stylesheet" href="styles.css">
+</head>
+
+<body>
+
+    <!-- Ticker de Precios -->
+    <div class="ticker-wrap">
+        <div class="ticker" id="ticker">
+            <!-- Se llena dinámicamente por app.js -->
+        </div>
+    </div>
+
+    <!-- Header -->
+    <header>
+        <nav>
+            <div class="logo">
+                <div class="logo-icon">🌱</div>
+                <span>Agro</span>
+            </div>
+            <ul class="nav-links">
+                <li><a href="#prestamos">Préstamos</a></li>
+                <li><a href="#marketplace">Marketplace</a></li>
+                <li><a href="#demanda">Demanda</a></li>
+                <li>
+                    <button class="btn-wallet" id="btnWallet" onclick="abrirWalletModal()">
+                        <span>🔗</span> Conectar Wallet
+                    </button>
+                </li>
+            </ul>
+        </nav>
+    </header>
+
+    <!-- Hero -->
+    <section class="hero">
+        <div class="hero-content">
+            <h1>Financiamiento con garantía real</h1>
+            <p>Usá tu maquinaria, tierra o producción como collateral. Accedé a préstamos para hacer crecer tu negocio.
+            </p>
+            <a href="#prestamos" class="cta-button">Simular mi préstamo</a>
+        </div>
+    </section>
+
+    <!-- Contenido Principal -->
+    <div class="container">
+
+        <div class="content-grid">
+            <!-- Sección Préstamos -->
+            <section id="prestamos" class="card">
+                <div class="card-header">
+                    <div class="card-title">Calculadora de Préstamos</div>
+                    <div class="card-subtitle">Ejemplo: Familia Pérez necesita $3.000 para sembrar café</div>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">¿Cuánto necesitás?</label>
+                    <input type="number" class="form-input" id="monto" value="3000" placeholder="Ej: 3000">
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">Tipo de garantía (colateral)</label>
+                    <select class="form-select" id="colateral" onchange="sugerirValor()">
+                        <option value="">Seleccionar...</option>
+                        <option value="tractor" selected>Tractor / Maquinaria</option>
+                        <option value="tierra">Tierra / Campo</option>
+                        <option value="cosecha">Cosecha futura</option>
+                        <option value="ganado">Ganado</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">Valor estimado de tu garantía</label>
+                    <input type="number" class="form-input" id="valor" value="5000" placeholder="Ej: 5000">
+                    <div class="form-hint">Te prestamos hasta el 60% del valor de tu garantía</div>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">Plazo</label>
+                    <select class="form-select" id="plazo">
+                        <option value="3">3 meses</option>
+                        <option value="6" selected>6 meses</option>
+                        <option value="12">12 meses</option>
+                    </select>
+                </div>
+
+                <button class="btn btn-primary" onclick="calcular()">Calcular pre-aprobación</button>
+
+                <div id="resultado" class="result-box">
+                    <!-- Resultado dinámico -->
+                </div>
+
+                <div class="disclaimer">
+                    <span>⚠️</span>
+                    <div>
+                        <strong>Esta es una simulación pre-aprobada.</strong>
+                        Para acreditarte el préstamo, nuestro equipo debe validar físicamente el estado del colateral
+                        (revisar que el tractor funcione, que la tierra esté a tu nombre, documentación de la cosecha,
+                        etc.). El proceso demora entre 24-48hs hábiles.
+                    </div>
+                </div>
+            </section>
+
+            <!-- Marketplace -->
+            <section id="marketplace" class="card">
+                <div class="card-header">
+                    <div class="card-title">Marketplace Local</div>
+                    <div class="card-subtitle">Productores de barrio - Sin intermediarios</div>
+                </div>
+
+                <!-- Form Publicar Producto (Productores) -->
+                <div class="publish-form">
+                    <div class="publish-form-title">🌾 ¿Sos productor? Publicá tu producto</div>
+                    <div class="publish-form-grid">
+                        <div class="form-field">
+                            <label class="form-label">Producto</label>
+                            <input type="text" class="form-input" id="productoNombre" placeholder="Ej: Tomates cherry">
+                        </div>
+                        <div class="form-field">
+                            <label class="form-label">Tu nombre o campo</label>
+                            <input type="text" class="form-input" id="productoProductor"
+                                placeholder="Ej: Familia Rodríguez">
+                        </div>
+                        <div class="form-field">
+                            <label class="form-label">Precio</label>
+                            <div class="publish-price-row">
+                                <span class="price-prefix">$</span>
+                                <input type="number" class="form-input" id="productoPrecio" placeholder="500">
+                                <select class="form-select" id="productoUnidad">
+                                    <option value="kg">por kg</option>
+                                    <option value="litro">por litro</option>
+                                    <option value="maple">por maple</option>
+                                    <option value="unidad">por unidad</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="form-field">
+                            <label class="form-label">Stock</label>
+                            <input type="number" class="form-input" id="productoStock" placeholder="50">
+                        </div>
+                        <div class="form-field form-field-btn">
+                            <button class="btn btn-primary" onclick="publicarProducto()">Publicar</button>
+                        </div>
+                    </div>
+                    <div class="publish-form-hint">💡 Conectá tu wallet para recibir pagos en crypto</div>
+                </div>
+
+                <div class="products-grid">
+                    <!-- Café -->
+                    <div class="product-card">
+                        <div class="product-image">☕</div>
+                        <div class="product-info">
+                            <div class="product-name">Café de especialidad</div>
+                            <div class="product-origin">📍 Juan Pérez - 2km</div>
+                            <div class="product-price" id="precio-cafe">$2.500/kg</div>
+                            <div class="product-stock" id="stock-cafe">Stock: 12 kg</div>
+                            <button class="btn-buy" id="btn-cafe" onclick="iniciarCompra('cafe')">Comprar ahora</button>
+                        </div>
+                    </div>
+
+                    <!-- Soja -->
+                    <div class="product-card">
+                        <div class="product-image" style="background: #f0fdf4;">🌱</div>
+                        <div class="product-info">
+                            <div class="product-name">Soja orgánica</div>
+                            <div class="product-origin">📍 Cooperativa San Martín - 5km</div>
+                            <div class="product-price" id="precio-soja">$28/kg</div>
+                            <div class="product-stock" id="stock-soja">Stock: 50 kg</div>
+                            <button class="btn-buy" id="btn-soja" onclick="iniciarCompra('soja')">Comprar ahora</button>
+                        </div>
+                    </div>
+
+                    <!-- Maíz -->
+                    <div class="product-card">
+                        <div class="product-image" style="background: #fffbeb;">🌽</div>
+                        <div class="product-info">
+                            <div class="product-name">Maíz fresco</div>
+                            <div class="product-origin">📍 Familia González - 3km</div>
+                            <div class="product-price" id="precio-maiz">$19/kg</div>
+                            <div class="product-stock" id="stock-maiz">Stock: 30 kg</div>
+                            <button class="btn-buy" id="btn-maiz" onclick="iniciarCompra('maiz')">Comprar ahora</button>
+                        </div>
+                    </div>
+
+                    <!-- Huevos -->
+                    <div class="product-card">
+                        <div class="product-image" style="background: #fef3c7;">🥚</div>
+                        <div class="product-info">
+                            <div class="product-name">Huevos de campo</div>
+                            <div class="product-origin">📍 Doña María - 1km</div>
+                            <div class="product-price" id="precio-huevos">$350/maple</div>
+                            <div class="product-stock" id="stock-huevos">Stock: 50 maples</div>
+                            <button class="btn-buy" id="btn-huevos" onclick="iniciarCompra('huevos')">Comprar
+                                ahora</button>
+                        </div>
+                    </div>
+
+                    <!-- Leche -->
+                    <div class="product-card">
+                        <div class="product-image" style="background: #eff6ff;">🥛</div>
+                        <div class="product-info">
+                            <div class="product-name">Leche pasteurizada</div>
+                            <div class="product-origin">📍 Rancho Los Álamos - 8km</div>
+                            <div class="product-price" id="precio-leche">$180/litro</div>
+                            <div class="product-stock" id="stock-leche">Stock: 200 litros</div>
+                            <button class="btn-buy" id="btn-leche" onclick="iniciarCompra('leche')">Comprar
+                                ahora</button>
+                        </div>
+                    </div>
+
+                    <!-- Dulce de Leche -->
+                    <div class="product-card">
+                        <div class="product-image" style="background: #fef3c7;">🥄</div>
+                        <div class="product-info">
+                            <div class="product-name">Dulce de Leche</div>
+                            <div class="product-origin">📍 Tambo La Esperanza - 6km</div>
+                            <div class="product-price" id="precio-dulce">$2.200/kg</div>
+                            <div class="product-stock" id="stock-dulce">Stock: 25 kg</div>
+                            <button class="btn-buy" id="btn-dulce" onclick="iniciarCompra('dulce')">Comprar
+                                ahora</button>
+                        </div>
+                    </div>
+                </div>
+            </section>
+        </div>
+
+        <!-- Banner Demanda -->
+        <section id="demanda" class="demand-section">
+            <div class="demand-banner">
+                <div class="demand-header">
+                    <div class="demand-title">
+                        <span>🔥</span>
+                        <span>Mercado con demanda fértil - Compradores activos ahora</span>
+                    </div>
+                </div>
+
+                <!-- Form Publicar Demanda -->
+                <div class="demand-form">
+                    <div class="demand-form-title">📢 Publicar tu demanda</div>
+                    <div class="demand-form-grid">
+                        <input type="text" class="form-input" id="demandaNegocio"
+                            placeholder="Tu negocio (ej: Panadería San José)">
+                        <select class="form-select" id="demandaProducto">
+                            <option value="cafe">☕ Café</option>
+                            <option value="soja">🌱 Soja</option>
+                            <option value="maiz">🌽 Maíz</option>
+                            <option value="huevos">🥚 Huevos</option>
+                            <option value="leche">🥛 Leche</option>
+                            <option value="dulce">🥄 Dulce de Leche</option>
+                        </select>
+                        <div class="demand-quantity-row">
+                            <input type="number" class="form-input" id="demandaCantidad" placeholder="Cantidad">
+                            <select class="form-select" id="demandaUnidad">
+                                <option value="kg">kg</option>
+                                <option value="litros">litros</option>
+                                <option value="maples">maples</option>
+                                <option value="unidades">unidades</option>
+                            </select>
+                        </div>
+                        <button class="btn btn-primary" onclick="publicarDemanda()">Publicar</button>
+                    </div>
+                </div>
+
+                <div class="demand-grid">
+                    <div class="demand-item" data-demand="huevos" data-negocio="Panadería San José" data-cantidad="50"
+                        data-unidad="maples">
+                        <span class="demand-text">🥚 Panadería San José busca 50 maples de huevos</span>
+                        <button class="btn-ofertar"
+                            onclick="abrirOfertaModal('huevos', 'Panadería San José', 50, 'maples')">Ofertar</button>
+                    </div>
+                    <div class="demand-item" data-demand="cafe" data-negocio="Café Martínez" data-cantidad="20"
+                        data-unidad="kg">
+                        <span class="demand-text">☕ Café Martínez quiere 20kg de café especialidad</span>
+                        <button class="btn-ofertar"
+                            onclick="abrirOfertaModal('cafe', 'Café Martínez', 20, 'kg')">Ofertar</button>
+                    </div>
+                    <div class="demand-item" data-demand="maiz" data-negocio="Molino Central" data-cantidad="30"
+                        data-unidad="kg">
+                        <span class="demand-text">🌽 Molino Central busca 30kg de maíz fresco</span>
+                        <button class="btn-ofertar"
+                            onclick="abrirOfertaModal('maiz', 'Molino Central', 30, 'kg')">Ofertar</button>
+                    </div>
+                    <div class="demand-item" data-demand="leche" data-negocio="Lácteos del Valle" data-cantidad="100"
+                        data-unidad="litros">
+                        <span class="demand-text">🥛 Lácteos del Valle necesita 100L de leche</span>
+                        <button class="btn-ofertar"
+                            onclick="abrirOfertaModal('leche', 'Lácteos del Valle', 100, 'litros')">Ofertar</button>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+    </div>
+
+    <!-- Modal Ciclo de Compra -->
+    <div id="modalCiclo" class="modal-overlay">
+        <div class="modal-content">
+            <div class="modal-title">Procesando compra</div>
+            <div class="modal-subtitle">Conectando con el productor...</div>
+
+            <div class="cycle-container">
+                <div class="cycle-step active" id="step1">
+                    <div class="cycle-icon">⏳</div>
+                    <div class="cycle-text">Procesando pago seguro</div>
+                </div>
+                <div class="cycle-line"></div>
+
+                <div class="cycle-step" id="step2">
+                    <div class="cycle-icon">💸</div>
+                    <div class="cycle-text">Transferencia al productor</div>
+                </div>
+                <div class="cycle-line"></div>
+
+                <div class="cycle-step" id="step3">
+                    <div class="cycle-icon">✓</div>
+                    <div class="cycle-text">Confirmación y retiro</div>
+                </div>
+            </div>
+
+            <button class="btn-close" id="btnCloseModal" onclick="cerrarModal()">Entendido</button>
+        </div>
+    </div>
+
+    <!-- Modal Wallet -->
+    <div id="modalWallet" class="modal-overlay">
+        <div class="modal-content wallet-modal-content">
+            <div class="wallet-icon">🔗</div>
+            <h3>Conectar Wallet</h3>
+            <p>Conectá tu wallet de Stellar para realizar transacciones en la plataforma.</p>
+
+            <div class="wallet-options">
+                <div class="wallet-option" onclick="conectarWallet('freighter')">
+                    <div class="wallet-option-icon">⭐</div>
+                    <div class="wallet-option-info">
+                        <div class="wallet-option-name">Freighter</div>
+                        <div class="wallet-option-desc">Wallet oficial de Stellar</div>
+                    </div>
+                </div>
+
+                <div class="wallet-option" onclick="conectarWallet('other')">
+                    <div class="wallet-option-icon">📱</div>
+                    <div class="wallet-option-info">
+                        <div class="wallet-option-name">Otras wallets</div>
+                        <div class="wallet-option-desc">WalletConnect y más</div>
+                    </div>
+                    <span class="coming-soon">Próximamente</span>
+                </div>
+            </div>
+
+            <button class="btn-close show" onclick="cerrarWalletModal()">Cancelar</button>
+        </div>
+    </div>
+
+    <!-- Modal Oferta -->
+    <div id="modalOferta" class="modal-overlay">
+        <div class="modal-content oferta-modal-content">
+            <div class="oferta-icon">📝</div>
+            <h3>Hacer oferta</h3>
+            <p id="ofertaDescripcion">Oferta para Panadería San José</p>
+
+            <div class="oferta-form">
+                <div class="form-group">
+                    <label class="form-label">Producto que ofrecés</label>
+                    <input type="text" class="form-input" id="ofertaProducto" placeholder="Ej: Huevos de campo">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Tu precio por <span id="ofertaUnidadLabel">unidad</span></label>
+                    <div class="oferta-precio-row">
+                        <span>$</span>
+                        <input type="number" class="form-input" id="ofertaPrecio" placeholder="340">
+                    </div>
+                </div>
+                <div class="oferta-total">
+                    <span>Total estimado:</span>
+                    <span id="ofertaTotal">$0</span>
+                </div>
+            </div>
+
+            <div class="oferta-disclaimer">
+                ⚠️ La transacción se procesa dentro de la plataforma con smart contract de Stellar. Agro retiene el pago
+                hasta confirmar la entrega.
+            </div>
+
+            <div class="oferta-buttons">
+                <button class="btn btn-primary" onclick="enviarOferta()">Enviar oferta</button>
+                <button class="btn-close show" onclick="cerrarOfertaModal()">Cancelar</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Toast -->
+    <div id="toast" class="toast"></div>
+
+    <!-- App Script -->
+    <script src="app.js"></script>
+</body>
+
+</html>
