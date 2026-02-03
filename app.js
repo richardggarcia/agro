@@ -392,12 +392,19 @@ async function conectarFreighterDirecto() {
         
         // Request permission first to trigger Freighter popup
         if (typeof freighter.isAllowed === 'function') {
-            const allowed = await freighter.isAllowed();
-            console.log('Freighter isAllowed:', allowed);
-            if (!allowed && typeof freighter.requestAccess === 'function') {
-                console.log('Solicitando acceso (requestAccess)...');
-                await freighter.requestAccess();
-                console.log('✅ requestAccess exitoso');
+            const allowedRes = await freighter.isAllowed();
+            const isAllowed = !!(allowedRes && allowedRes.isAllowed);
+            console.log('Freighter isAllowed:', allowedRes);
+            if (!isAllowed) {
+                if (typeof freighter.setAllowed === 'function') {
+                    console.log('Solicitando acceso (setAllowed)...');
+                    await freighter.setAllowed();
+                    console.log('✅ setAllowed exitoso');
+                } else if (typeof freighter.requestAccess === 'function') {
+                    console.log('Solicitando acceso (requestAccess)...');
+                    await freighter.requestAccess();
+                    console.log('✅ requestAccess exitoso');
+                }
             }
         }
 
