@@ -358,9 +358,13 @@ function cerrarWalletModal() {
 async function conectarWallet(tipo) {
     if (tipo === 'freighter') {
         // Check if installed first
-        if (!await isFreighterInstalled()) {
-            mostrarToast('⚠️ Instalá la extensión de Freighter para continuar.');
-            openFreighterInstall();
+        const installed = await isFreighterInstalled();
+        if (!installed) {
+            cerrarWalletModal();
+            mostrarToast('⚠️ Freighter no detectado. Te llevamos a instalarla...');
+            setTimeout(() => {
+                openFreighterInstall();
+            }, 2000);
             return;
         }
         cerrarWalletModal();
@@ -374,15 +378,7 @@ async function conectarWallet(tipo) {
 // Check if Freighter is installed (requires extension presence)
 async function isFreighterInstalled() {
     const found = findFreighter();
-    if (!found) return false;
-    if (typeof found.isConnected !== 'function') return true;
-    try {
-        const res = await found.isConnected();
-        if (res && res.error && /not available/i.test(res.error)) return false;
-        return !!(res && res.isConnected);
-    } catch (e) {
-        return false;
-    }
+    return !!found;
 }
 
 function isMobileDevice() {
@@ -395,7 +391,8 @@ function openFreighterInstall() {
         mostrarToast('⚠️ Freighter requiere extensión de navegador. Abrí esta web en desktop.');
         return;
     }
-    window.location.href = url;
+    // Open in new tab
+    window.open(url, '_blank');
 }
 
 function updateWalletUI() {
