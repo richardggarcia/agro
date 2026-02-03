@@ -408,7 +408,8 @@ async function conectarFreighterDirecto() {
 
     // Check if Freighter is installed
     if (!freighter) {
-        mostrarToast('⚠️ Freighter no detectado. Verificá que esté instalada y desbloqueada.');
+        mostrarToast('⚠️ Freighter no detectado. Instalá la extensión.');
+        window.open('https://freighter.app', '_blank');
         
         return;
     }
