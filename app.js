@@ -360,7 +360,7 @@ function conectarWallet(tipo) {
         // Check if installed first
         if (!isFreighterInstalled()) {
             mostrarToast('⚠️ Instalá Freighter desde freighter.app');
-            window.open('https://freighter.app', '_blank');
+            openFreighterInstall();
             return;
         }
         cerrarWalletModal();
@@ -375,6 +375,19 @@ function conectarWallet(tipo) {
 function isFreighterInstalled() {
     const found = findFreighter();
     return found !== null;
+}
+
+function isMobileDevice() {
+    return /Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
+}
+
+function openFreighterInstall() {
+    const url = 'https://freighter.app';
+    if (isMobileDevice()) {
+        window.location.href = url;
+    } else {
+        window.open(url, '_blank');
+    }
 }
 
 function updateWalletUI() {
@@ -409,7 +422,7 @@ async function conectarFreighterDirecto() {
     // Check if Freighter is installed
     if (!freighter) {
         mostrarToast('⚠️ Freighter no detectado. Instalá la extensión.');
-        window.open('https://freighter.app', '_blank');
+        openFreighterInstall();
         
         return;
     }
@@ -418,10 +431,31 @@ async function conectarFreighterDirecto() {
     try {
         mostrarToast('⏳ Conectando con Freighter...');
         
+        // Detect if Freighter is available in this environment
+        if (typeof freighter.isConnected === 'function') {
+            try {
+                const connectedRes = await freighter.isConnected();
+                if (connectedRes && connectedRes.error && /not available/i.test(connectedRes.error)) {
+                    mostrarToast('⚠️ Freighter no disponible en este dispositivo.');
+                    openFreighterInstall();
+                    return;
+                }
+            } catch (e) {
+                mostrarToast('⚠️ Freighter no disponible en este dispositivo.');
+                openFreighterInstall();
+                return;
+            }
+        }
+
         // Request permission first to trigger Freighter popup
         if (typeof freighter.isAllowed === 'function') {
             const allowedRes = await freighter.isAllowed();
             const isAllowed = !!(allowedRes && allowedRes.isAllowed);
+            if (allowedRes && allowedRes.error && /not available/i.test(allowedRes.error)) {
+                mostrarToast('⚠️ Freighter no disponible en este dispositivo.');
+                openFreighterInstall();
+                return;
+            }
             if (!isAllowed) {
                 if (typeof freighter.setAllowed === 'function') {
                     await freighter.setAllowed();
